@@ -1,4 +1,6 @@
-# Hi there 👋 I'm Rubén
+# r9ruben
 
-### My TryHackMe Stats
-![TryHackMe Badge](https://tryhackme.com/badge/6835034)
+## 🧠 TryHackMe Stats
+<!-- THM-START -->
+Stats are automatically updated using GitHub Actions.
+<!-- THM-END -->
