@@ -1,4 +1,4 @@
-# Hola, soy Rubén 👋
+# Hi there 👋 I'm Rubén
 
-### Mi progreso en TryHackMe:
-![TryHackMe Stats](https://tryhackme-stats-card.vercel.app/api?user=r9ruben)
+### My TryHackMe Stats
+![TryHackMe Badge](https://tryhackme.com/badge/6835034)
