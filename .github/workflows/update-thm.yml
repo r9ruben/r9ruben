@@ -10,6 +10,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Update Badge
-        uses: p4p1/tryhackme-stats-card-action@main
+        uses: grzywacz/tryhackme-stats-card-action@v1
         with:
           username: r9ruben
