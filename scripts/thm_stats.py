@@ -2,52 +2,42 @@ import requests
 import re
 
 def update_stats():
-    # Usamos tu nombre de usuario oficial
-    username = "r9ruben"
-    url = f"https://tryhackme.com/p/{username}"
-    
-    # Esta cabecera es vital para que TryHackMe no nos bloquee
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-    }
+    # Usamos tu ID público oficial para una conexión limpia
+    user_id = "6835034"
+    url = f"https://tryhackme.com/api/v2/badges/public-profile?userPublicId={user_id}"
 
     try:
-        print(f"Conectando con el perfil de {username}...")
-        response = requests.get(url, headers=headers, timeout=20)
+        print(f"Conectando a la API oficial para el ID {user_id}...")
+        response = requests.get(url, timeout=15)
         response.raise_for_status()
         
-        html = response.text
+        # Obtenemos los datos limpios directamente en formato JSON
+        data = response.json()
         
-        # Nueva búsqueda más potente para el Rank y las Salas
-        # Buscamos los números que aparecen cerca de las palabras clave
-        rank_search = re.search(r'rank["\s:]+([\d,]+)', html, re.IGNORECASE)
-        rooms_search = re.search(r'completedRooms["\s:]+(\d+)', html, re.IGNORECASE)
-        
-        # Si no los encuentra arriba, probamos con este otro formato
-        if not rank_search:
-            rank_search = re.search(r'Rank.*?(\d+)', html, re.DOTALL)
-        if not rooms_search:
-            rooms_search = re.search(r'Rooms Completed.*?(\d+)', html, re.DOTALL)
+        # Extraemos solo los números que necesitamos
+        rank = data.get("rank", "N/A")
+        rooms = data.get("completedRooms", "N/A")
 
-        # Limpiamos los datos encontrados
-        rank = rank_search.group(1) if rank_search else "847599" # Backup con tu dato actual
-        rooms = rooms_search.group(1) if rooms_search else "9"    # Backup con tu dato actual
+        print(f"Datos limpios encontrados -> Rank: {rank}, Salas: {rooms}")
 
-        print(f"Datos encontrados -> Rank: {rank}, Salas: {rooms}")
-
+        # Creamos el bloque de texto bonito y limpio
         stats_block = f"\n**Rank:** {rank}\n**Global Ranking:** #{rank}\n**Rooms Completed:** {rooms}\n"
 
-        # Leemos y actualizamos el README
+        # Leemos el README
         with open("README.md", "r", encoding="utf-8") as f:
             content = f.read()
 
+        # Reemplazamos el contenido entre las marcas
         pattern = r".*?"
         replacement = f"{stats_block}"
+        
+        new_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
 
+        # Guardamos el archivo limpio
         with open("README.md", "w", encoding="utf-8") as f:
-            f.write(re.sub(pattern, replacement, content, flags=re.DOTALL))
+            f.write(new_content)
             
-        print("✅ README actualizado con éxito.")
+        print("✅ README actualizado con éxito y SIN basura.")
 
     except Exception as e:
         print(f"❌ Error: {e}")
