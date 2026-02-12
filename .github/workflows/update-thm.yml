@@ -21,3 +21,8 @@ jobs:
             git add README.md
             git commit -m "Update README with THM stats" || echo "No changes to commit"
             git push
+            
+      - name: Install dependencies
+        run: |
+         pip install requests beautifulsoup4
+
