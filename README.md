@@ -1,8 +1,7 @@
-# Ruben Romero
+# Ruben Romero 👋
+## Cybersecurity Student
 
-## TryHackMe Stats
-<!-- THM_STATS_START -->
-Rank: Example Rank
-Global Ranking: Example Number
-Rooms Completed: Example Number
-<!-- THM_STATS_END -->
+### My TryHackMe Progress:
+(The robot will put your stats here)
+---
+*Updated automatically every 24 hours.*
