@@ -1,42 +1,50 @@
-# This script updates the README.md file with TryHackMe stats
-# It replaces the content between THM_STATS_START and THM_STATS_END
+# This script fetches public TryHackMe stats and updates the README.md
 
-from pathlib import Path
+import requests
+from bs4 import BeautifulSoup
 
-README_PATH = Path("README.md")
+USERNAME = "r9ruben"
+URL = f"https://tryhackme.com/p/{USERNAME}"
 
-NEW_CONTENT = """
-Rank: Example Rank
-Global Ranking: Example Number
-Rooms Completed: Example Number
-""".strip()
+response = requests.get(URL, timeout=10)
+response.raise_for_status()
 
+soup = BeautifulSoup(response.text, "html.parser")
 
-def update_readme():
-    readme_text = README_PATH.read_text(encoding="utf-8")
+# --- VERY BASIC extraction (safe placeholders if structure changes) ---
+rank = "Unknown"
+global_rank = "Unknown"
+rooms_completed = "Unknown"
 
-    start_tag = "<!-- THM_STATS_START -->"
-    end_tag = "<!-- THM_STATS_END -->"
+text = soup.get_text()
 
-    if start_tag not in readme_text or end_tag not in readme_text:
-        raise Exception("THM markers not found in README.md")
+if "Rank" in text:
+    rank = "Visible on profile"
 
-    before = readme_text.split(start_tag)[0]
-    after = readme_text.split(end_tag)[1]
+if "Completed" in text:
+    rooms_completed = "Visible on profile"
 
-    updated_readme = (
-        before
-        + start_tag
-        + "\n"
-        + NEW_CONTENT
-        + "\n"
-        + end_tag
-        + after
-    )
+new_block = f"""<!-- THM_STATS_START -->
+Rank: {rank}
+Global Ranking: {global_rank}
+Rooms Completed: {rooms_completed}
+<!-- THM_STATS_END -->"""
 
-    README_PATH.write_text(updated_readme, encoding="utf-8")
+# Read README
+with open("README.md", "r", encoding="utf-8") as f:
+    readme = f.read()
 
+# Replace stats block
+import re
+readme = re.sub(
+    r"<!-- THM_STATS_START -->.*?<!-- THM_STATS_END -->",
+    new_block,
+    readme,
+    flags=re.DOTALL
+)
 
-if __name__ == "__main__":
-    update_readme()
-    print("README.md updated successfully")
+# Write README back
+with open("README.md", "w", encoding="utf-8") as f:
+    f.write(readme)
+
+print("TryHackMe stats updated")
