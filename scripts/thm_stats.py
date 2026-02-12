@@ -1,43 +1,48 @@
 import requests
 import re
-import os
 
-def main():
-    user_id = "6835034"
-    url = f"https://tryhackme.com/api/v2/badges/public-profile?userPublicId={user_id}"
-    
+def update_stats():
+    username = "r9ruben"
+    url = f"https://tryhackme.com/p/{username}"
+    # Engañamos al sitio para que piense que somos un navegador real
+    headers = {"User-Agent": "Mozilla/5.0"}
+
     try:
-        print(f"Buscando datos para el usuario {user_id}...")
-        response = requests.get(url, timeout=15)
+        print(f"Conectando con el perfil de {username}...")
+        response = requests.get(url, headers=headers, timeout=15)
         response.raise_for_status()
-        data = response.json()
         
-        rank = data.get("rank", "N/A")
-        rooms = data.get("completedRooms", "N/A")
+        # Buscamos tu Rank (847599) y Salas (9) directamente en el texto de la página
+        html = response.text
         
+        # Buscamos el número que está justo después de la palabra 'Rank'
+        rank_match = re.search(r'Rank.*?(\d+)', html, re.DOTALL)
+        # Buscamos el número de salas completadas
+        rooms_match = re.search(r'Completed rooms.*?(\d+)', html, re.DOTALL)
+        
+        rank = rank_match.group(1) if rank_match else "N/A"
+        rooms = rooms_match.group(1) if rooms_match else "N/A"
+
         stats_block = f"\n**Rank:** {rank}\n**Global Ranking:** #{rank}\n**Rooms Completed:** {rooms}\n"
-        
-        # Leemos el README
+
         with open("README.md", "r", encoding="utf-8") as f:
             content = f.read()
 
-        # Buscamos las etiquetas (esta vez de forma más flexible)
         pattern = r".*?"
         replacement = f"{stats_block}"
-        
-        if not re.search(pattern, content, flags=re.DOTALL):
-            print("❌ ERROR: No encontré las etiquetas en tu README.md")
+
+        if "" not in content:
+            print("❌ Error: No encontré las etiquetas en el README")
             return
 
-        new_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
-        
         with open("README.md", "w", encoding="utf-8") as f:
-            f.write(new_content)
+            f.write(re.sub(pattern, replacement, content, flags=re.DOTALL))
             
-        print("✅ ¡README actualizado con éxito!")
-        
+        print(f"✅ ¡Éxito! Rank: {rank}, Salas: {rooms}")
+
     except Exception as e:
-        print(f"❌ Ocurrió un error: {e}")
+        print(f"❌ Falló el script: {e}")
+        exit(1) # Esto hace que el círculo salga ROJO si falla, para que lo sepas
 
 if __name__ == "__main__":
-    main()
+    update_stats()
