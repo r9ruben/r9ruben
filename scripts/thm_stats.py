@@ -1,50 +1,40 @@
 import requests
-import re
 import json
 
 def update_stats():
     username = "r9ruben"
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        'Referer': 'https://tryhackme.com',
     }
 
     try:
-        response = requests.get(
-            f"https://tryhackme.com/p/{username}",
-            headers=headers,
-            timeout=20
-        )
-        html = response.text
-
-        # TryHackMe usa Next.js, los datos están en __NEXT_DATA__
-        match = re.search(r'<script id="__NEXT_DATA__" type="application/json">(.*?)</script>', html, re.DOTALL)
-
-        if not match:
-            raise Exception("No se encontró __NEXT_DATA__ en la página")
-
-        data = json.loads(match.group(1))
-
-        # Navegar por el JSON para obtener los datos del usuario
-        props = data.get("props", {}).get("pageProps", {})
+        # API pública de TryHackMe - no requiere autenticación
+        api_url = f"https://tryhackme.com/api/user/rank/{username}"
+        response = requests.get(api_url, headers=headers, timeout=20)
         
-        # Intentar diferentes rutas posibles dentro del JSON
-        user_data = props.get("user", props.get("userData", props.get("profileData", {})))
+        print(f"Status code: {response.status_code}")
+        print(f"Respuesta: {response.text[:500]}")
         
-        rank_val = user_data.get("userPoints", user_data.get("points", "N/A"))
-        rooms_val = user_data.get("completedRooms", user_data.get("rooms", "N/A"))
-        
-        # Si no encontramos los datos, buscar en todo el JSON
-        if rank_val == "N/A":
-            json_str = match.group(1)
-            rank_search = re.search(r'"userPoints"\s*:\s*(\d+)', json_str)
-            rank_val = rank_search.group(1) if rank_search else "N/A"
-        
+        data = response.json()
+
+        # La API devuelve los datos directamente
+        rank_val = data.get("userRank", data.get("rank", "N/A"))
+        rooms_val = data.get("completedRooms", data.get("rooms", "N/A"))
+
+        # Si rooms no está en este endpoint, intentar otro
         if rooms_val == "N/A":
-            json_str = match.group(1)
-            rooms_search = re.search(r'"completedRooms"\s*:\s*(\d+)', json_str)
-            rooms_val = rooms_search.group(1) if rooms_search else "N/A"
+            rooms_url = f"https://tryhackme.com/api/user/rooms/{username}"
+            r2 = requests.get(rooms_url, headers=headers, timeout=20)
+            print(f"Rooms API respuesta: {r2.text[:300]}")
+            d2 = r2.json()
+            rooms_val = d2.get("completedRooms", d2.get("total", "N/A"))
 
-        new_stats = f"**Rank:** {rank_val}\n**Global Ranking:** #{rank_val}\n**Rooms Completed:** {rooms_val}\n"
+        new_stats = (
+            f"**Rank:** {rank_val} | "
+            f"**Global Ranking:** #{rank_val} | "
+            f"**Rooms Completed:** {rooms_val}\n"
+        )
 
         with open("README.md", "w", encoding="utf-8") as f:
             f.write(new_stats)
@@ -53,11 +43,17 @@ def update_stats():
 
     except Exception as e:
         print(f"❌ Error: {e}")
-        # Imprimir parte del HTML para debug
-        try:
-            print(f"Primeros 2000 chars del HTML: {html[:2000]}")
-        except:
-            pass
 
 if __name__ == "__main__":
     update_stats()
+```
+
+---
+
+## Lo más importante ahora: ver qué devuelve la API
+
+El script ya tiene `print` de debug. Cuando lo ejecutes en Actions, el log te mostrará exactamente qué JSON devuelve la API. Comparte esa respuesta conmigo y en un segundo te digo exactamente qué campos usar.
+
+También puedes verlo tú mismo yendo directamente a tu navegador a:
+```
+https://tryhackme.com/api/user/rank/r9ruben
