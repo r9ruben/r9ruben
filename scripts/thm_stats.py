@@ -1,36 +1,34 @@
 from curl_cffi import requests
+import os
+import json
 
 def update_stats():
     username = "r9ruben"
+    cookie = os.environ.get("THM_COOKIE", "")
 
-    # Headers que envía Chrome cuando hace una llamada API (fetch/XHR)
     headers = {
         "Accept": "application/json, text/plain, */*",
-        "Accept-Language": "en-US,en;q=0.9",
         "Referer": "https://tryhackme.com/p/" + username,
-        "Origin": "https://tryhackme.com",
-        "X-Requested-With": "XMLHttpRequest",
+        "Cookie": cookie,
     }
 
-    endpoints = [
-        "https://tryhackme.com/api/user/rank/" + username,
-        "https://tryhackme.com/api/v2/hackers/profile/" + username,
-        "https://tryhackme.com/api/v2/user/" + username,
-    ]
-
     try:
-        for url in endpoints:
-            print("Probando: " + url)
-            r = requests.get(
-                url,
-                headers=headers,
-                impersonate="chrome110",
-                timeout=20
-            )
-            print("Status: " + str(r.status_code))
-            print("Content-Type: " + r.headers.get("content-type", "N/A"))
-            print("Respuesta: " + r.text[:500])
-            print("---")
+        url = "https://tryhackme.com/api/user/rank/" + username
+        r = requests.get(url, headers=headers, impersonate="chrome110", timeout=20)
+
+        print("Status: " + str(r.status_code))
+        print("Respuesta: " + r.text[:500])
+
+        data = r.json()
+        rank_val = str(data.get("userRank", data.get("rank", "N/A")))
+        rooms_val = str(data.get("completedRooms", "N/A"))
+
+        readme = "**Rank:** " + rank_val + " | **Rooms Completed:** " + rooms_val + "\n"
+
+        with open("README.md", "w", encoding="utf-8") as f:
+            f.write(readme)
+
+        print("README actualizado: Rank=" + rank_val + " Rooms=" + rooms_val)
 
     except Exception as e:
         print("Error: " + str(e))
