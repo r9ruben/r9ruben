@@ -1,5 +1,4 @@
-# Ruben Romero 👋
 
-### My TryHackMe Progress:
-<!-- THM_STATS_START -->
-<!-- THM_STATS_END -->
+**Rank:** N/A
+**Global Ranking:** #N/A
+**Rooms Completed:** N/A
