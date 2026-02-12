@@ -12,21 +12,20 @@ def update_stats():
         
         html = response.text
         
-        rank = re.search(r'"userPoints"\s*:\s*(\d+)', html)
-        rooms = re.search(r'"completedRooms"\s*:\s*(\d+)', html)
-        
-        rank_val = rank.group(1) if rank else "N/A"
-        rooms_val = rooms.group(1) if rooms else "N/A"
-        
-        print("Rank encontrado: " + rank_val)
-        print("Rooms encontrado: " + rooms_val)
-
-        readme = "**Rank:** " + rank_val + " | **Rooms Completed:** " + rooms_val + "\n"
-
-        with open("README.md", "w", encoding="utf-8") as f:
-            f.write(readme)
-
-        print("README actualizado correctamente")
+        # Buscar la seccion con los datos del usuario
+        # Imprimir 3000 caracteres alrededor de donde aparece el username
+        idx = html.find(username)
+        if idx != -1:
+            print("=== CONTEXTO DEL USERNAME ===")
+            print(html[idx-200:idx+2000])
+        else:
+            print("Username no encontrado en el HTML")
+            
+        # Imprimir primeros 500 chars del script de Next.js si existe
+        next_idx = html.find("__NEXT_DATA__")
+        if next_idx != -1:
+            print("=== NEXT DATA ===")
+            print(html[next_idx:next_idx+3000])
 
     except Exception as e:
         print("Error: " + str(e))
