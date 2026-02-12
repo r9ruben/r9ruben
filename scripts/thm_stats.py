@@ -1,22 +1,35 @@
 from curl_cffi import requests
-import json
 
 def update_stats():
     username = "r9ruben"
 
-    # Estas son las APIs internas que usa TryHackMe en el navegador
+    # Headers que envía Chrome cuando hace una llamada API (fetch/XHR)
+    headers = {
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Referer": "https://tryhackme.com/p/" + username,
+        "Origin": "https://tryhackme.com",
+        "X-Requested-With": "XMLHttpRequest",
+    }
+
     endpoints = [
         "https://tryhackme.com/api/user/rank/" + username,
-        "https://tryhackme.com/api/v2/user/profile/" + username,
-        "https://tryhackme.com/api/no-auth/leaderboards?limit=1&username=" + username,
+        "https://tryhackme.com/api/v2/hackers/profile/" + username,
+        "https://tryhackme.com/api/v2/user/" + username,
     ]
 
     try:
         for url in endpoints:
             print("Probando: " + url)
-            r = requests.get(url, impersonate="chrome110", timeout=20)
+            r = requests.get(
+                url,
+                headers=headers,
+                impersonate="chrome110",
+                timeout=20
+            )
             print("Status: " + str(r.status_code))
-            print("Respuesta: " + r.text[:800])
+            print("Content-Type: " + r.headers.get("content-type", "N/A"))
+            print("Respuesta: " + r.text[:500])
             print("---")
 
     except Exception as e:
