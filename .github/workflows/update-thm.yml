@@ -16,6 +16,8 @@ jobs:
       - name: Install dependencies
         run: pip install curl_cffi
       - name: Run THM script
+        env:
+          THM_COOKIE: ${{ secrets.THM_COOKIE }}
         run: python scripts/thm_stats.py
       - name: Commit and Push
         run: |
