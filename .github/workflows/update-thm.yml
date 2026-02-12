@@ -8,10 +8,10 @@ jobs:
   update-readme:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
       - name: Update THM Card
-        uses: p4p1/tryhackme-stats-card-action@main
+        uses: p4p1/tryhackme-stats-card-action@master
         with:
           username: r9ruben
