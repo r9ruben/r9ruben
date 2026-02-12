@@ -1,6 +1,6 @@
 # Ruben Romero 👋
 ## Cybersecurity Student
 
-### My TryHackMe Progress:
+### My TryHackMe Stats:
 ---
-*Updated automatically.*
+*Last update: manual/daily*
