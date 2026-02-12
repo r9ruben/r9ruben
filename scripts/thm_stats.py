@@ -1,50 +1,46 @@
-# This script fetches public TryHackMe stats and updates the README.md
-
+# This script fetches real stats from TryHackMe API and updates the README
 import requests
-from bs4 import BeautifulSoup
-
-USERNAME = "r9ruben"
-URL = f"https://tryhackme.com/p/{USERNAME}"
-
-response = requests.get(URL, timeout=10)
-response.raise_for_status()
-
-soup = BeautifulSoup(response.text, "html.parser")
-
-# --- VERY BASIC extraction (safe placeholders if structure changes) ---
-rank = "Unknown"
-global_rank = "Unknown"
-rooms_completed = "Unknown"
-
-text = soup.get_text()
-
-if "Rank" in text:
-    rank = "Visible on profile"
-
-if "Completed" in text:
-    rooms_completed = "Visible on profile"
-
-new_block = f"""<!-- THM_STATS_START -->
-Rank: {rank}
-Global Ranking: {global_rank}
-Rooms Completed: {rooms_completed}
-<!-- THM_STATS_END -->"""
-
-# Read README
-with open("README.md", "r", encoding="utf-8") as f:
-    readme = f.read()
-
-# Replace stats block
 import re
-readme = re.sub(
-    r"<!-- THM_STATS_START -->.*?<!-- THM_STATS_END -->",
-    new_block,
-    readme,
-    flags=re.DOTALL
-)
 
-# Write README back
-with open("README.md", "w", encoding="utf-8") as f:
-    f.write(readme)
+def main():
+    # Your official public ID
+    user_id = "6835034"
+    url = f"https://tryhackme.com/api/v2/badges/public-profile?userPublicId={user_id}"
+    
+    try:
+        response = requests.get(url, timeout=15)
+        response.raise_for_status()
+        data = response.json()
+        
+        # Extracting real data from your profile
+        rank = data.get("rank", "N/A")
+        rooms = data.get("completedRooms", "N/A")
+        username = data.get("username", "r9ruben")
 
-print("TryHackMe stats updated")
+        # Formatting the block
+        stats_block = (
+            f"\n**Rank:** {rank}\n"
+            f"**Global Ranking:** #{rank}\n"
+            f"**Rooms Completed:** {rooms}\n"
+        )
+        
+        # Update README.md
+        with open("README.md", "r", encoding="utf-8") as f:
+            content = f.read()
+            
+        # Regex to find the markers
+        pattern = r".*?"
+        replacement = f"{stats_block}"
+        
+        new_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
+        
+        with open("README.md", "w", encoding="utf-8") as f:
+            f.write(new_content)
+            
+        print("Stats updated successfully for " + username)
+        
+    except Exception as e:
+        print(f"Error: {e}")
+
+if __name__ == "__main__":
+    main()
