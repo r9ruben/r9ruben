@@ -3,43 +3,34 @@ import re
 
 def update_stats():
     username = "r9ruben"
-    # Identidad de navegador para que THM no nos bloquee
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+    headers = {'User-Agent': 'Mozilla/5.0'}
     
     try:
-        print(f"Connecting to {username}'s profile...")
         response = requests.get(f"https://tryhackme.com/p/{username}", headers=headers, timeout=20)
         html = response.text
         
-        # Valores de respaldo (tus datos reales actuales)
-        rank = "847599"
-        rooms = "9"
+        # Buscamos los datos actuales
+        rank = re.search(r'rank["\s:]+([\d,]+)', html)
+        rooms = re.search(r'completedRooms["\s:]+(\d+)', html)
         
-        # Buscamos los números en el código de la página
-        r_match = re.search(r'rank["\s:]+([\d,]+)', html)
-        rm_match = re.search(r'completedRooms["\s:]+(\d+)', html)
-        
-        if r_match: rank = r_match.group(1)
-        if rm_match: rooms = rm_match.group(1)
+        rank_val = rank.group(1) if rank else "847599"
+        rooms_val = rooms.group(1) if rooms else "9"
 
-        print(f"Stats found: Rank {rank}, Rooms {rooms}")
-
-        # Bloque de texto final formateado
-        new_stats = f"\n**Rank:** {rank}\n**Global Ranking:** #{rank}\n**Rooms Completed:** {rooms}\n"
+        # Formato limpio
+        new_stats = f"\n**Rank:** {rank_val}\n**Global Ranking:** #{rank_val}\n**Rooms Completed:** {rooms_val}\n"
 
         with open("README.md", "r", encoding="utf-8") as f:
             content = f.read()
 
-        # Reemplazo estricto: esto evita que se duplique
+        # Esta es la parte de "seguridad": reemplaza SOLO una vez
         pattern = r".*?"
         replacement = f"{new_stats}"
         
-        # Limpiamos posibles etiquetas duplicadas antes de escribir
-        updated_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
+        new_content = re.sub(pattern, replacement, content, flags=re.DOTALL, count=1)
 
         with open("README.md", "w", encoding="utf-8") as f:
-            f.write(updated_content)
-        print("✅ Success! README is now clean.")
+            f.write(new_content)
+        print("✅ Success! README is now clean and updated.")
 
     except Exception as e:
         print(f"❌ Error: {e}")
