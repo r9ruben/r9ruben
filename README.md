@@ -1,1 +1,1 @@
-**Rank:** N/A | **Rooms Completed:** N/A
+![TryHackMe](https://tryhackme-badges.s3.amazonaws.com/r9ruben.png)
